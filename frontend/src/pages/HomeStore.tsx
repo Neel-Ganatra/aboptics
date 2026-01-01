@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, CheckCircle, ArrowRight, Trash2 } from 'lucide-react';
+import { Calendar, CheckCircle, ArrowRight, Trash2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';

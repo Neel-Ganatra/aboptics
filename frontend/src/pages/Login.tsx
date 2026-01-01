@@ -29,7 +29,7 @@ export default function Login() {
             } else {
                 setError(data.message || 'Login failed');
             }
-        } catch (err) {
+        } catch {
             setError('Something went wrong. Please try again.');
         }
     };

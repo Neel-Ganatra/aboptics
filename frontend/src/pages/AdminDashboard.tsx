@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, ShoppingBag, Clock, CheckCircle, XCircle, Truck, Package, Search, PlusCircle } from 'lucide-react';
+import { Users, ShoppingBag, Clock, CheckCircle, PlusCircle } from 'lucide-react';
 import AdminProductUpload from '../components/AdminProductUpload';
 
 interface Stats {
@@ -20,6 +20,7 @@ interface Order {
     items: any;
     address: string;
     phone: string;
+    name?: string;
 }
 
 export default function AdminDashboard() {

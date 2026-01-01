@@ -1,6 +1,6 @@
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
-import { Trash2, Home, CreditCard, ArrowRight } from 'lucide-react';
+import { Trash2, Home, CreditCard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { orderAPI } from '../api';
 import { useAuth } from '../context/AuthContext';

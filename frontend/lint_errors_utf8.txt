@@ -1,0 +1,82 @@
+
+> frontend@0.0.0 lint
+> eslint .
+
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\api.ts
+  30:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  48:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\components\AdminProductUpload.tsx
+  104:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\context\AuthContext.tsx
+  30:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\context\AuthContext.tsx:30:13
+  28 |
+  29 |         if (storedToken && storedUser) {
+> 30 |             setToken(storedToken);
+     |             ^^^^^^^^ Avoid calling setState() directly within an effect
+  31 |             setUser(JSON.parse(storedUser));
+  32 |         }
+  33 |     }, []);  react-hooks/set-state-in-effect
+  56:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react-refresh/only-export-components
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\context\CartContext.tsx
+  44:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\AdminDashboard.tsx
+   5:50  error  'XCircle' is defined but never used       @typescript-eslint/no-unused-vars
+   5:59  error  'Truck' is defined but never used         @typescript-eslint/no-unused-vars
+   5:66  error  'Package' is defined but never used       @typescript-eslint/no-unused-vars
+   5:75  error  'Search' is defined but never used        @typescript-eslint/no-unused-vars
+  20:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:22  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  77:18  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\Cart.tsx
+  3:36  error  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\HomeStore.tsx
+   2:20  error  'Clock' is defined but never used         @typescript-eslint/no-unused-vars
+   2:27  error  'MapPin' is defined but never used        @typescript-eslint/no-unused-vars
+  18:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  85:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\Login.tsx
+  32:18  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\ProductDetails.tsx
+  16:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\Profile.tsx
+   83:45   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  107:62   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  137:50   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:123  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\Shop.tsx
+   20:117  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  135:8    warning  React Hook useEffect has a missing dependency: 'fetchProducts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  140:27   error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  153:60   error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+
+C:\Users\asus\Documents\Arya-Lens\frontend\src\pages\Signup.tsx
+  38:18  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  64:18  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  88:18  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+??? 36 problems (35 errors, 1 warning)
+
