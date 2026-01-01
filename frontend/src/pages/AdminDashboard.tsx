@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShoppingBag, Clock, CheckCircle, PlusCircle } from 'lucide-react';
 import AdminProductUpload from '../components/AdminProductUpload';
+import { API_URL } from '../api';
 
 interface Stats {
     totalUsers: number;
@@ -40,10 +41,10 @@ export default function AdminDashboard() {
 
         const fetchData = async () => {
             try {
-                const statsRes = await fetch('http://localhost:3000/api/admin/stats', {
+                const statsRes = await fetch(`${API_URL}/api/admin/stats`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const ordersRes = await fetch('http://localhost:3000/api/admin/orders', {
+                const ordersRes = await fetch(`${API_URL}/api/admin/orders`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -63,7 +64,7 @@ export default function AdminDashboard() {
 
     const handleStatusUpdate = async (id: number, newStatus: string) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/admin/orders/${id}/status`, {
+            const res = await fetch(`${API_URL}/api/admin/orders/${id}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

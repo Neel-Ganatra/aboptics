@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Calendar, CheckCircle, ArrowRight, Trash2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { API_URL } from '../api';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,7 +23,7 @@ export default function HomeStore() {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:3000/api/appointments', {
+            const response = await fetch(`${API_URL}/api/appointments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

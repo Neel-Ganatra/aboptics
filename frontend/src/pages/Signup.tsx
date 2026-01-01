@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Eye, ArrowRight, Lock } from 'lucide-react';
+import { API_URL } from '../api';
 
 export default function Signup() {
     const [step, setStep] = useState(1); // 1 = Details, 2 = OTP
@@ -22,7 +23,7 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/api/auth/register', {
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -47,7 +48,7 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/api/auth/verify-otp', {
+            const response = await fetch(`${API_URL}/api/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email, otp })
@@ -72,7 +73,7 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/api/auth/resend-otp', {
+            const response = await fetch(`${API_URL}/api/auth/resend-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email })

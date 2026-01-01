@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Package } from 'lucide-react';
-import { orderAPI } from '../api';
+import { orderAPI, API_URL } from '../api';
 
 export default function Profile() {
     const { user, token } = useAuth();
@@ -14,7 +14,7 @@ export default function Profile() {
     useEffect(() => {
         if (token) {
             Promise.all([
-                fetch('http://localhost:3000/api/appointments/my', {
+                fetch(`${API_URL}/api/appointments/my`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }).then(res => res.json()),
                 orderAPI.getMyOrders()
