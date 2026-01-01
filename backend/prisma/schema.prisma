@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  name         String?
+  role         String        @default("CUSTOMER") // CUSTOMER, ADMIN
+  isVerified   Boolean       @default(false)
+  otp          String?
+  otpExpiry    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  orders       Order[]
+  appointments Appointment[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  brand       String?
+  category    String // FRAMES, SUNGLASSES, LENSES
+  imageUrl    String?
+  images      Json?    // Array of image URLs ["url1", "url2"]
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  total     Float
+  status    String   @default("PENDING") // PENDING, SHIPPED, DELIVERED
+  items     OrderItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  address   String
+  date      DateTime
+  status    String   @default("PENDING")
+  items     Json?    // Stores selected product details [{id, name, ...}]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
