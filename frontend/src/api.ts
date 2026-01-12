@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // const API_URL = 'http://localhost:3000/api';
 // Force localhost in development
-export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000/api").replace(/\/api\/api\/?$/, '/api');
+const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+// Strip all trailing /api segments and slashes, then append exactly one /api
+export const API_URL = `${rawUrl.replace(/(\/api)+[\/]*$/, '')}/api`;
 
 const api = axios.create({
     baseURL: API_URL,
