@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Eye, ArrowRight } from 'lucide-react';
-import { API_URL } from '../api';
+import { authAPI } from '../api';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -16,22 +16,12 @@ export default function Login() {
         e.preventDefault();
         setError('');
         try {
-            const response = await fetch(`${API_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                login(data.token, data.user);
-                navigate('/');
-            } else {
-                setError(data.message || 'Login failed');
-            }
-        } catch {
-            setError('Something went wrong. Please try again.');
+            const response = await authAPI.login({ email, password });
+            const data = response.data;
+            login(data.token, data.user);
+            navigate('/');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Login failed');
         }
     };
 

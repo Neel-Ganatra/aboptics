@@ -49,9 +49,15 @@ export const productAPI = {
 };
 
 export const appointmentAPI = {
-    create: (data: any) => api.post('/appointments', data), // Correct endpoint based on route logic
+    create: (data: any) => api.post('/appointments', data),
     getAll: () => api.get('/appointments'),
-    getMyHistory: () => api.get('/appointments/my-history'),
+    getMyHistory: () => api.get('/appointments/my'),
+};
+
+export const adminAPI = {
+    getStats: () => api.get('/admin/stats'),
+    getOrders: () => api.get('/admin/orders'),
+    updateOrderStatus: (id: number | string, status: string) => api.put(`/admin/orders/${id}/status`, { status }),
 };
 
 export const orderAPI = {

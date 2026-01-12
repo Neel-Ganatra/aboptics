@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Eye, ArrowRight, Lock } from 'lucide-react';
-import { API_URL } from '../api';
+import api, { authAPI } from '../api';
 
 export default function Signup() {
     const [step, setStep] = useState(1); // 1 = Details, 2 = OTP
@@ -23,21 +23,10 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setStep(2); // Move to OTP step
-            } else {
-                setError(data.message || 'Signup failed');
-            }
-        } catch (err) {
-            setError('Something went wrong. Please try again.');
+            await authAPI.register(formData);
+            setStep(2); // Move to OTP step
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Signup failed');
         } finally {
             setIsLoading(false);
         }
@@ -48,22 +37,12 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/auth/verify-otp`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: formData.email, otp })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                login(data.token, data.user);
-                navigate('/');
-            } else {
-                setError(data.message || 'Verification failed');
-            }
-        } catch (err) {
-            setError('Something went wrong during verification.');
+            const response = await api.post('/auth/verify-otp', { email: formData.email, otp });
+            const data = response.data;
+            login(data.token, data.user);
+            navigate('/');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Verification failed');
         } finally {
             setIsLoading(false);
         }
@@ -73,21 +52,10 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/auth/resend-otp`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: formData.email })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.message || 'Failed to resend OTP');
-            } else {
-                alert('New OTP sent to your email!');
-            }
-        } catch (err) {
-            setError('Something went wrong. Please try again.');
+            await api.post('/auth/resend-otp', { email: formData.email });
+            alert('New OTP sent to your email!');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to resend OTP');
         } finally {
             setIsLoading(false);
         }

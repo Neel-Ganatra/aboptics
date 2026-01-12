@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShoppingBag, Clock, CheckCircle, PlusCircle } from 'lucide-react';
 import AdminProductUpload from '../components/AdminProductUpload';
-import { API_URL } from '../api';
+import { adminAPI } from '../api';
 
 interface Stats {
     totalUsers: number;
@@ -41,17 +41,11 @@ export default function AdminDashboard() {
 
         const fetchData = async () => {
             try {
-                const statsRes = await fetch(`${API_URL}/api/admin/stats`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const ordersRes = await fetch(`${API_URL}/api/admin/orders`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const statsRes = await adminAPI.getStats();
+                const ordersRes = await adminAPI.getOrders();
 
-                if (statsRes.ok && ordersRes.ok) {
-                    setStats(await statsRes.json());
-                    setOrders(await ordersRes.json());
-                }
+                setStats(statsRes.data);
+                setOrders(ordersRes.data);
             } catch (error) {
                 console.error("Failed to fetch admin data");
             } finally {
@@ -64,18 +58,8 @@ export default function AdminDashboard() {
 
     const handleStatusUpdate = async (id: number, newStatus: string) => {
         try {
-            const res = await fetch(`${API_URL}/api/admin/orders/${id}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ status: newStatus })
-            });
-
-            if (res.ok) {
-                setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
-            }
+            await adminAPI.updateOrderStatus(id, newStatus);
+            setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
         } catch (error) {
             console.error("Failed to update status");
         }
