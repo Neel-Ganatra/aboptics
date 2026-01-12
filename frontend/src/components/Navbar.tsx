@@ -10,7 +10,7 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const { items } = useCart();
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated } = useAuth();
     const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
