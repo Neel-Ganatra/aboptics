@@ -34,7 +34,12 @@ exports.register = async (req, res) => {
 
         res.status(201).json({ message: 'OTP sent to email. Please verify.' });
     } catch (error) {
-        console.error(error);
+        console.error("Registration Error:", error);
+        if (error.message.includes('Failed to send OTP')) {
+            // Delete user if email failed so they can try again
+            await prisma.user.delete({ where: { email: req.body.email } }).catch(() => { });
+            return res.status(500).json({ message: 'Email service failed. check server logs.' });
+        }
         res.status(500).json({ message: 'Server error on register' });
     }
 };

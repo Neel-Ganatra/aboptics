@@ -5,7 +5,10 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+    },
+    connectionTimeout: 15000, // 15 seconds
+    greetingTimeout: 15000,
+    socketTimeout: 15000
 });
 
 exports.sendOTP = async (email, otp) => {
@@ -35,6 +38,6 @@ exports.sendOTP = async (email, otp) => {
         }
     } catch (error) {
         console.error('Email send error:', error);
-        // Don't block flow if email fails in dev, just log
+        throw new Error('Failed to send OTP email: ' + error.message);
     }
 };
