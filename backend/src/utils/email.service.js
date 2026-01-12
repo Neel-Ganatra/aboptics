@@ -1,12 +1,14 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Or use 'smtp.mailtrap.io' for dev
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // use SSL
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    connectionTimeout: 15000, // 15 seconds
+    connectionTimeout: 15000,
     greetingTimeout: 15000,
     socketTimeout: 15000
 });
