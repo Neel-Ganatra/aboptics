@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // const API_URL = 'http://localhost:3000/api';
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+// Force localhost in development
+export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000/api").replace(/\/api\/api\/?$/, '/api');
 
 const api = axios.create({
     baseURL: API_URL,
@@ -43,6 +44,12 @@ export const productAPI = {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
     delete: (id: string) => api.delete(`/products/${id}`),
+};
+
+export const appointmentAPI = {
+    create: (data: any) => api.post('/appointments', data), // Correct endpoint based on route logic
+    getAll: () => api.get('/appointments'),
+    getMyHistory: () => api.get('/appointments/my-history'),
 };
 
 export const orderAPI = {

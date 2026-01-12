@@ -4,9 +4,12 @@
 @theme {
   --color-brand-black: #050505;
   --color-brand-dark: #121212;
-  --color-brand-gold: #FFC107;
-  --color-brand-amber: #FFA000;
-  --color-brand-yellow: #FFD54F;
+  --color-brand-gold: #D4AF37;
+  /* Metallic Gold */
+  --color-brand-amber: #C5A028;
+  /* Darker Gold */
+  --color-brand-yellow: #E5D3B3;
+  /* Champagne */
   --font-sans: "Outfit", sans-serif;
 
   --animate-float: float 6s ease-in-out infinite;
@@ -47,14 +50,43 @@
   .glass-card {
     @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl;
   }
+
+  .text-gold-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] via-[#E5D3B3] to-[#D4AF37];
+  }
+
+  .text-gold-dark {
+    @apply text-yellow-800 dark:text-brand-gold;
+  }
+
+  .text-gold-gradient-dark {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-800 via-yellow-600 to-yellow-800 dark:from-brand-gold dark:via-brand-yellow dark:to-brand-gold;
+  }
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-body {
-  @apply bg-brand-black text-white font-sans selection:bg-brand-gold selection:text-black;
-  background: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 100%);
-  overflow-x: hidden;
+@layer base {
+  :root {
+    --bg-primary: #ffffff;
+    --text-primary: #050505;
+    --bg-secondary: #f3f4f6;
+    --border-color: #e5e7eb;
+  }
+
+  :root.dark {
+    --bg-primary: #050505;
+    --text-primary: #ffffff;
+    --bg-secondary: #121212;
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    @apply font-sans selection:bg-brand-gold selection:text-black;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
 }

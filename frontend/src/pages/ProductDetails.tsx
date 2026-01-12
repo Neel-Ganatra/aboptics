@@ -1,29 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Star, ArrowLeft, CreditCard, ShieldCheck, Truck, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useHomeTrial } from '../context/HomeTrialContext';
 import { productAPI } from '../api';
 
 export default function ProductDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { addToTrial, isInTrial } = useHomeTrial();
     const { isAuthenticated } = useAuth();
 
     const [product, setProduct] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
-
-    // 3D Tilt Effect State
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-    const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
-    const mouseY = useSpring(y, { stiffness: 500, damping: 100 });
-    const rotateX = useTransform(mouseY, [-0.5, 0.5], ["10deg", "-10deg"]);
-    const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-10deg", "10deg"]);
 
     // Fetch Product Data
     useEffect(() => {
@@ -52,7 +45,7 @@ export default function ProductDetails() {
         if (images.length <= 1) return;
         const interval = setInterval(() => {
             setActiveImageIndex((prev) => (prev + 1) % images.length);
-        }, 3000); // Change image every 3 seconds
+        }, 5000); // 5 seconds default
 
         return () => clearInterval(interval);
     }, [images.length]);
@@ -67,23 +60,6 @@ export default function ProductDetails() {
         setActiveImageIndex((prev) => (prev - 1 + images.length) % images.length);
     }, [images.length]);
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const xPct = mouseX / width - 0.5;
-        const yPct = mouseY / height - 0.5;
-        x.set(xPct);
-        y.set(yPct);
-    };
-
-    const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
-    };
-
     const handleAddToCart = () => {
         if (!isAuthenticated) {
             alert("Please login to add items.");
@@ -97,7 +73,7 @@ export default function ProductDetails() {
             name: product.name,
             price: product.price,
             quantity: 1,
-            image: product.imageUrl
+            image: product.imageUrl // Use main image for cart
         });
         alert("Added to cart!");
     };
@@ -120,6 +96,18 @@ export default function ProductDetails() {
         navigate('/cart');
     };
 
+    const handleAddToTrial = () => {
+        if (!product) return;
+        addToTrial({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.imageUrl, // Use main image for trial
+            category: product.category
+        });
+        navigate('/home-store');
+    };
+
     if (loading) return <div className="text-white text-center pt-24 font-serif text-2xl">Loading luxury eyewear...</div>;
     if (!product) return <div className="text-white text-center pt-24 font-serif text-2xl">Product not found</div>;
 
@@ -137,92 +125,44 @@ export default function ProductDetails() {
                 </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-                    {/* Immersive 3D Image Gallery */}
+                    {/* Simplified Image Gallery */}
                     <div className="flex flex-col gap-6">
-                        <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8, ease: "easeOut" }}
-                            style={{
-                                rotateX,
-                                rotateY,
-                                transformStyle: "preserve-3d",
-                            }}
-                            onMouseMove={handleMouseMove}
-                            onMouseLeave={handleMouseLeave}
-                            className="relative perspective-1000 group cursor-pointer aspect-[4/5] w-full"
-                        >
-                            <div
-                                style={{ transform: "translateZ(20px)" }}
-                                className="relative w-full h-full bg-gradient-to-br from-white/10 to-transparent backdrop-blur-sm rounded-[3rem] border border-white/10 p-2 shadow-2xl"
-                            >
-                                <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden bg-brand-dark/50 shadow-inner group/image">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10 pointer-events-none" />
+                        <div className="relative aspect-[4/5] w-full rounded-[3rem] overflow-hidden border border-white/10 bg-white/5 group">
+                            <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none" />
 
-                                    {/* Active Image */}
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black">
-                                        <AnimatePresence mode="wait">
-                                            <motion.img
-                                                key={activeImageIndex}
-                                                initial={{ opacity: 0, scale: 0.9 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                exit={{ opacity: 0 }}
-                                                transition={{ duration: 0.4 }}
-                                                src={images[activeImageIndex]}
-                                                alt={product.name}
-                                                className="max-w-full max-h-full object-contain p-4"
-                                                style={{
-                                                    transform: "translateZ(50px)",
-                                                    filter: "contrast(1.1) brightness(1.1)" // Slight enhance for all images
-                                                }}
-                                            />
-                                        </AnimatePresence>
+                            <AnimatePresence mode="wait">
+                                <motion.img
+                                    key={activeImageIndex}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    src={images[activeImageIndex]}
+                                    alt={product.name}
+                                    className="w-full h-full object-contain p-8 relative z-0"
+                                />
+                            </AnimatePresence>
 
-                                        {/* Cinematic Vagnette to hide dirty backgrounds */}
-                                        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.8)_100%)] mix-blend-multiply z-10" />
+                            {images.length > 1 && (
+                                <>
+                                    <button
+                                        onClick={prevImage}
+                                        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/60 rounded-full text-white hover:bg-brand-gold hover:text-black transition-all opacity-0 group-hover:opacity-100"
+                                    >
+                                        <ChevronLeft className="w-6 h-6" />
+                                    </button>
+                                    <button
+                                        onClick={nextImage}
+                                        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/60 rounded-full text-white hover:bg-brand-gold hover:text-black transition-all opacity-0 group-hover:opacity-100"
+                                    >
+                                        <ChevronRight className="w-6 h-6" />
+                                    </button>
+                                    <div className="absolute bottom-6 right-6 z-20 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-xs font-bold text-white border border-white/10">
+                                        {activeImageIndex + 1} / {images.length}
                                     </div>
-
-                                    {/* Navigation Arrows (Flipkart/Amazon Style) */}
-                                    {images.length > 1 && (
-                                        <>
-                                            <button
-                                                onClick={prevImage}
-                                                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-black/40 hover:bg-black/70 backdrop-blur-md rounded-full text-white transition-all transform hover:scale-110 opacity-0 group-hover/image:opacity-100 border border-white/10"
-                                                style={{ transform: "translateZ(80px)" }}
-                                            >
-                                                <ChevronLeft className="w-6 h-6" />
-                                            </button>
-                                            <button
-                                                onClick={nextImage}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-black/40 hover:bg-black/70 backdrop-blur-md rounded-full text-white transition-all transform hover:scale-110 opacity-0 group-hover/image:opacity-100 border border-white/10"
-                                                style={{ transform: "translateZ(80px)" }}
-                                            >
-                                                <ChevronRight className="w-6 h-6" />
-                                            </button>
-                                        </>
-                                    )}
-
-                                    {/* 3D Floating Badges */}
-                                    <div className="absolute top-6 left-6 z-20 pointer-events-none" style={{ transform: "translateZ(80px)" }}>
-                                        <span className="px-4 py-2 bg-brand-gold/90 text-black text-xs font-bold uppercase tracking-widest rounded-full shadow-lg backdrop-blur-sm">
-                                            Premium
-                                        </span>
-                                    </div>
-
-                                    {/* Image Counter Badge */}
-                                    {images.length > 1 && (
-                                        <div className="absolute bottom-6 right-6 z-20 pointer-events-none" style={{ transform: "translateZ(80px)" }}>
-                                            <span className="px-3 py-1 bg-black/50 text-white text-xs font-bold rounded-full backdrop-blur-sm border border-white/10">
-                                                {activeImageIndex + 1} / {images.length}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Reflections/Glow */}
-                            <div className="absolute -inset-4 bg-brand-gold/20 blur-3xl rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none" />
-                        </motion.div>
+                                </>
+                            )}
+                        </div>
 
                         {/* Thumbnails */}
                         {images.length > 1 && (
@@ -299,6 +239,13 @@ export default function ProductDetails() {
                                 >
                                     <ShoppingBag className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
                                     Add to Cart
+                                </button>
+                                <button
+                                    onClick={handleAddToTrial}
+                                    className="col-span-2 bg-white/5 border border-brand-gold/20 text-brand-gold font-bold py-4 rounded-2xl hover:bg-brand-gold hover:text-black transition-all flex items-center justify-center gap-3 text-lg group"
+                                >
+                                    <Truck className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    {isInTrial(product.id) ? "View in Home Trial Cart" : "Try at Home (Free)"}
                                 </button>
                             </div>
                         </div>

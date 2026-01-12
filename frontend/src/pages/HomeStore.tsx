@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import { Calendar, CheckCircle, ArrowRight, Trash2 } from 'lucide-react';
-import { useCart } from '../context/CartContext';
-import { API_URL } from '../api';
+import { useHomeTrial } from '../context/HomeTrialContext';
+import { appointmentAPI } from '../api';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function HomeStore() {
-    const { items, removeFromCart, clearCart } = useCart();
+    const { trialItems, removeFromTrial, clearTrial } = useHomeTrial();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -22,26 +23,21 @@ export default function HomeStore() {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/appointments`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    items: items
-                })
+            await appointmentAPI.create({
+                ...formData,
+                items: trialItems
             });
 
-            if (response.ok) {
-                alert('Appointment Booked Successfully! We will arrive with your selected frames.');
-                clearCart();
-                navigate('/');
-            } else {
-                alert('Failed to book. Please try again.');
-            }
+            alert('Appointment Booked Successfully! We will arrive with your selected frames.');
+            clearTrial();
+            navigate('/');
         } catch (error) {
             console.error('Error:', error);
-            alert('Something went wrong.');
+            alert('Failed to book appointment. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -63,7 +59,7 @@ export default function HomeStore() {
                     transition={{ delay: 0.2 }}
                     className="text-xl text-gray-400 max-w-2xl mx-auto px-4"
                 >
-                    Complete the form below to schedule your home visit.
+                    Selected {trialItems.length}/5 frames for your home trial.
                 </motion.p>
             </section>
 
@@ -77,20 +73,20 @@ export default function HomeStore() {
                     className="space-y-8"
                 >
                     <div className="bg-white/5 border border-white/10 p-8 rounded-3xl">
-                        <h3 className="text-2xl font-bold mb-6 text-brand-gold">Selected for Try-On ({items.length})</h3>
+                        <h3 className="text-2xl font-bold mb-6 text-brand-gold">Selected for Try-On ({trialItems.length})</h3>
 
-                        {items.length === 0 ? (
-                            <p className="text-gray-400">No frames selected. We will bring our standard bestsellers collection.</p>
+                        {trialItems.length === 0 ? (
+                            <p className="text-gray-400">No frames selected. Browse our collection and click "Try at Home".</p>
                         ) : (
                             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                {items.map((item: any, i: number) => (
-                                    <div key={i} className="flex items-center gap-4 bg-black/30 p-3 rounded-xl border border-white/5">
-                                        <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                                {trialItems.map((item: any) => (
+                                    <div key={item.id} className="flex items-center gap-4 bg-black/30 p-3 rounded-xl border border-white/5">
+                                        <img src={item.image || "https://via.placeholder.com/150"} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
                                         <div className="flex-1">
                                             <h4 className="font-bold">{item.name}</h4>
                                             <p className="text-xs text-gray-400">{item.category}</p>
                                         </div>
-                                        <button onClick={() => removeFromCart(item.id)} className="text-gray-500 hover:text-red-500">
+                                        <button onClick={() => removeFromTrial(item.id)} className="text-gray-500 hover:text-red-500">
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
@@ -123,35 +119,39 @@ export default function HomeStore() {
                         <div className="grid grid-cols-2 gap-5">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">Name</label>
-                                <input required name="name" onChange={handleChange} type="text" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors" placeholder="John Doe" />
+                                <input required name="name" onChange={handleChange} value={formData.name} type="text" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors" placeholder="John Doe" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">Phone</label>
-                                <input required name="phone" onChange={handleChange} type="tel" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors" placeholder="+91..." />
+                                <input required name="phone" onChange={handleChange} value={formData.phone} type="tel" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors" placeholder="+91..." />
                             </div>
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-300">Address</label>
-                            <textarea required name="address" onChange={handleChange} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors h-24 resize-none" placeholder="Full address with landmark..." />
+                            <textarea required name="address" onChange={handleChange} value={formData.address} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors h-24 resize-none" placeholder="Full address with landmark..." />
                         </div>
 
                         <div className="grid grid-cols-2 gap-5">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">Date</label>
                                 <div className="relative">
-                                    <input required name="date" onChange={handleChange} type="date" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors text-white" />
+                                    <input required name="date" onChange={handleChange} value={formData.date} type="date" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors text-white [color-scheme:dark]" />
                                     <Calendar className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300">Time</label>
-                                <input required name="time" onChange={handleChange} type="time" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors text-white" />
+                                <input required name="time" onChange={handleChange} value={formData.time} type="time" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors text-white [color-scheme:dark]" />
                             </div>
                         </div>
 
-                        <button type="submit" className="w-full bg-brand-gold text-black font-bold py-4 rounded-xl hover:bg-brand-amber transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 text-lg mt-4">
-                            Confirm Appointment <ArrowRight className="w-5 h-5" />
+                        <button type="submit" disabled={loading} className="w-full bg-brand-gold text-black font-bold py-4 rounded-xl hover:bg-brand-amber transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 text-lg mt-4 disabled:opacity-50">
+                            {loading ? 'Confirming...' : (
+                                <>
+                                    Confirm Appointment <ArrowRight className="w-5 h-5" />
+                                </>
+                            )}
                         </button>
                     </form>
                 </motion.div>
