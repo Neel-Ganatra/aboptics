@@ -44,10 +44,9 @@ exports.sendOTP = async (email, otp) => {
             throw new Error("No Email Credentials provided");
         }
     } catch (error) {
-        console.error('SMTP Failed (Blocked by Render?):', error.message);
-        console.log("==========================================");
-        console.log(`[FALLBACK] MOCK OTP for ${email}: ${otp}`);
-        console.log("==========================================");
-        // Do NOT throw error. Let the user proceed.
+        console.error('SMTP Failed (Blocked?), using Fallback:', error.message);
+        console.log(`[FALLBACK] MOCK OTP: ${otp}`);
+        // Return the OTP so controller can send it to frontend for Dev Mode
+        return otp;
     }
 };

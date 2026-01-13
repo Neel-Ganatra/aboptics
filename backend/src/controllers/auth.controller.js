@@ -30,9 +30,11 @@ exports.register = async (req, res) => {
             }
         });
 
-        await emailService.sendOTP(email, otp);
-
-        res.status(201).json({ message: 'OTP sent to email. Please verify.' });
+        // Send OTP via EmailJS on frontend, so we return it here
+        res.status(201).json({
+            message: 'OTP generated. Sending email...',
+            otp: otp
+        });
     } catch (error) {
         console.error("Registration Error:", error);
         if (error.message.includes('Failed to send OTP')) {
@@ -112,9 +114,12 @@ exports.resendOtp = async (req, res) => {
             data: { otp, otpExpiry }
         });
 
-        await emailService.sendOTP(email, otp);
+        // await emailService.sendOTP(email, otp); // Handled by frontend
 
-        res.json({ message: 'New OTP sent to email' });
+        res.json({
+            message: 'New OTP generated',
+            otp: otp
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Failed to resend OTP' });

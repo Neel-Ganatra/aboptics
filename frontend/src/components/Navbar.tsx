@@ -1,17 +1,15 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Search, Menu, X, Sun, Moon } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const { items } = useCart();
-    const { isAuthenticated } = useAuth();
-    const { theme, toggleTheme } = useTheme();
+    const { isAuthenticated, logout, user } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -96,9 +94,20 @@ export default function Navbar() {
                         {/* Auth */}
                         {isAuthenticated ? (
                             <div className="flex items-center gap-6 pl-6 border-l border-white/10">
+                                {user?.role === 'ADMIN' && (
+                                    <Link to="/admin" className="text-sm font-bold text-brand-gold hover:text-white tracking-wide">
+                                        ADMIN PANEL
+                                    </Link>
+                                )}
                                 <Link to="/profile" className="text-sm font-medium text-gray-300 hover:text-white tracking-wide">
                                     ACCOUNT
                                 </Link>
+                                <button
+                                    onClick={logout}
+                                    className="text-sm font-medium text-red-400 hover:text-red-300 tracking-wide uppercase"
+                                >
+                                    Logout
+                                </button>
                             </div>
                         ) : (
                             <Link
@@ -109,13 +118,7 @@ export default function Navbar() {
                             </Link>
                         )}
 
-                        {/* Theme Toggle */}
-                        <button
-                            onClick={toggleTheme}
-                            className="p-2 rounded-full text-black dark:text-gray-300 hover:text-brand-gold dark:hover:text-white transition-colors"
-                        >
-                            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                        </button>
+
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -162,7 +165,23 @@ export default function Navbar() {
                                 <Link to="/cart" onClick={() => setIsOpen(false)} className="py-3 text-center border border-white/20 rounded-lg text-sm uppercase tracking-widest text-gray-400">
                                     Cart ({items.length})
                                 </Link>
+                                {isAuthenticated && user?.role === 'ADMIN' && (
+                                    <Link to="/admin" onClick={() => setIsOpen(false)} className="col-span-2 py-3 text-center bg-brand-gold text-black font-bold rounded-lg text-sm uppercase tracking-widest">
+                                        Admin Panel
+                                    </Link>
+                                )}
                             </div>
+                            {isAuthenticated && (
+                                <button
+                                    onClick={() => {
+                                        logout();
+                                        setIsOpen(false);
+                                    }}
+                                    className="w-full py-3 text-center border border-red-500/30 rounded-lg text-sm uppercase tracking-widest text-red-500 hover:bg-red-500/10"
+                                >
+                                    Logout
+                                </button>
+                            )}
                         </div>
                     </motion.div>
                 )}

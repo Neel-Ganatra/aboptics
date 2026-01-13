@@ -1,21 +1,68 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Lock } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Lock } from 'lucide-react';
 import api, { authAPI } from '../api';
+import emailjs from '@emailjs/browser';
+
+// EMAILJS CONFIGURATION
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 export default function Signup() {
     const [step, setStep] = useState(1); // 1 = Details, 2 = OTP
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
     const [otp, setOtp] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    useEffect(() => {
+        if (location.state?.email && location.state?.step) {
+            setFormData(prev => ({ ...prev, email: location.state.email }));
+            setStep(location.state.step);
+        }
+    }, [location.state]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const sendEmailOtp = async (email: string, otpCode: string, name: string) => {
+        try {
+            if (EMAILJS_SERVICE_ID === "YOUR_SERVICE_ID") {
+                console.warn("EmailJS not configured. OTP:", otpCode);
+                alert(`[DEV MODE / NO EMAILJS] OTP: ${otpCode}`);
+                return;
+            }
+
+            const templateParams = {
+                email: email,
+                to_name: name,
+                passcode: otpCode,
+                time: "10 minutes"
+            };
+
+            console.log("Sending EmailJS with params:", templateParams);
+
+            const result = await emailjs.send(
+                EMAILJS_SERVICE_ID,
+                EMAILJS_TEMPLATE_ID,
+                templateParams,
+                EMAILJS_PUBLIC_KEY
+            );
+            console.log("EmailJS Result:", result.text);
+            console.log("Email sent successfully!");
+        } catch (err: any) {
+            console.error("Failed to send email:", err);
+            // Fallback to show OTP if email fails, so user isn't stuck
+            alert(`[EMAIL FAILED] Error: ${err?.text || 'Unknown'}\n\nBackup OTP: ${otpCode}`);
+        }
     };
 
     const handleSignup = async (e: React.FormEvent) => {
@@ -23,7 +70,12 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            await authAPI.register(formData);
+            const response = await authAPI.register(formData);
+
+            if (response.data.otp) {
+                await sendEmailOtp(formData.email, response.data.otp, formData.name);
+            }
+
             setStep(2); // Move to OTP step
         } catch (err: any) {
             setError(err.response?.data?.message || 'Signup failed');
@@ -52,8 +104,12 @@ export default function Signup() {
         setError('');
         setIsLoading(true);
         try {
-            await api.post('/auth/resend-otp', { email: formData.email });
-            alert('New OTP sent to your email!');
+            const response = await api.post('/auth/resend-otp', { email: formData.email });
+
+            if (response.data.otp) {
+                await sendEmailOtp(formData.email, response.data.otp, formData.name || "User");
+                alert('New OTP sent to your email!');
+            }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to resend OTP');
         } finally {
@@ -126,16 +182,25 @@ export default function Signup() {
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
-                            <input
-                                name="password"
-                                type="password"
-                                required
-                                value={formData.password}
-                                onChange={handleChange}
-                                disabled={isLoading}
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 focus:border-brand-gold/50 focus:ring-1 focus:ring-brand-gold/50 focus:outline-none transition-all placeholder:text-gray-600 disabled:opacity-50"
-                                placeholder="••••••••"
-                            />
+                            <div className="relative">
+                                <input
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 focus:border-brand-gold/50 focus:ring-1 focus:ring-brand-gold/50 focus:outline-none transition-all placeholder:text-gray-600 disabled:opacity-50 pr-12"
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </div>
                         </div>
 
                         <button

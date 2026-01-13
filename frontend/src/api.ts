@@ -1,10 +1,14 @@
 import axios from 'axios';
 
-// const API_URL = 'http://localhost:3000/api';
 // Force localhost in development
-const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const rawUrl = import.meta.env.MODE === 'development'
+    ? "http://localhost:3000/api"
+    : (import.meta.env.VITE_API_URL || "https://aboptics-backend.onrender.com/api");
+
 // Strip all trailing /api segments and slashes, then append exactly one /api
 export const API_URL = `${rawUrl.replace(/(\/api)+[\/]*$/, '')}/api`;
+
+console.log('Current API URL:', API_URL);
 
 const api = axios.create({
     baseURL: API_URL,
