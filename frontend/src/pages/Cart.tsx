@@ -78,7 +78,7 @@ export default function Cart() {
                                 <div className="flex-1">
                                     <h3 className="text-xl font-bold">{item.name}</h3>
                                     <p className="text-sm text-gray-400">{item.category}</p>
-                                    <p className="text-lg font-bold text-brand-gold mt-1">${item.price}</p>
+                                    <p className="text-lg font-bold text-brand-gold mt-1">Rs. {item.price}</p>
                                 </div>
                                 <button
                                     onClick={() => removeFromCart(item.id)}
@@ -97,7 +97,7 @@ export default function Cart() {
                     <div className="bg-white/5 p-8 rounded-3xl border border-white/10 h-fit sticky top-24">
                         <div className="flex justify-between text-xl font-bold mb-8 pb-8 border-b border-white/10">
                             <span>Total</span>
-                            <span>${total.toFixed(2)}</span>
+                            <span>Rs. {total.toFixed(2)}</span>
                         </div>
 
                         <div className="space-y-4">

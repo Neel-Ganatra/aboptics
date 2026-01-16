@@ -96,7 +96,7 @@ export default function Profile() {
                                         <p className="text-sm text-gray-400">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-xl font-bold text-brand-gold">${order.total}</p>
+                                        <p className="text-xl font-bold text-brand-gold">Rs. {order.total}</p>
                                         <p className="text-xs text-gray-400">{order.items?.length} items</p>
                                     </div>
                                 </div>

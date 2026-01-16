@@ -286,7 +286,7 @@ export default function AdminProductUpload({ onClose, onSuccess }: AdminProductU
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Price ($)</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Price (Rs.)</label>
                                     <input
                                         required
                                         type="number"

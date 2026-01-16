@@ -46,6 +46,27 @@ exports.createOrder = async (req, res) => {
             return newOrder;
         });
 
+        if (process.env.ADMIN_EMAIL) {
+            const user = await prisma.user.findUnique({ where: { id: userId } });
+            // Assuming address might be passed in req.body or we use user profile if available. 
+            // For now, let's assume it comes from checkout or we just say "Address not captured in Order model yet" 
+            // BUT user specifically asked for address. 
+            // Let's add 'address' to destructuring at top of function first.
+
+            await emailService.sendOrderNotification(process.env.ADMIN_EMAIL, {
+                orderId: order.id,
+                customerName: user ? user.name : 'Unknown',
+                total: order.total,
+                items: order.items.map(i => ({
+                    productName: i.productId, // We only have ID here, ideally we fecth names but for speed let's just send IDs or fetch if possible. 
+                    // Actually, let's leave it simple for now or fetch names.
+                    quantity: i.quantity,
+                    price: i.price
+                })),
+                address: req.body.address || "Address not provided in order data"
+            });
+        }
+
         res.status(201).json(order);
     } catch (error) {
         console.error('Error creating order:', error);

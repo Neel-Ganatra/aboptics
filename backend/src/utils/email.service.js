@@ -50,3 +50,43 @@ exports.sendOTP = async (email, otp) => {
         return otp;
     }
 };
+
+exports.sendOrderNotification = async (adminEmail, orderDetails) => {
+    try {
+        const { orderId, customerName, total, items, address } = orderDetails;
+
+        const itemsHtml = items.map(item =>
+            `<li>${item.productName} (x${item.quantity}) - Rs. ${item.price}</li>`
+        ).join('');
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: adminEmail,
+            subject: `New Order Received - Order #${orderId}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                    <h1 style="color: #FFA000;">New Order Alert!</h1>
+                    <p><strong>Order ID:</strong> #${orderId}</p>
+                    <p><strong>Customer:</strong> ${customerName}</p>
+                    <p><strong>Total Amount:</strong> Rs. ${total}</p>
+                    
+                    <h3>Items Ordered:</h3>
+                    <ul>${itemsHtml}</ul>
+
+                    <h3>Shipping Address:</h3>
+                    <p>${address}</p>
+                </div>
+            `
+        };
+
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            console.log("Sending Order Notification to Admin...");
+            await transporter.sendMail(mailOptions);
+            console.log(`Order notification sent to ${adminEmail}`);
+        } else {
+            console.log("[MOCK] Order Admin Notification Sent");
+        }
+    } catch (error) {
+        console.error('Failed to send order notification:', error.message);
+    }
+};

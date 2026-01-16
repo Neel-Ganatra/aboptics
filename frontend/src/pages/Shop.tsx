@@ -63,11 +63,10 @@ const TiltCard = ({ product, handleAddToCart }: { product: Product; handleAddToC
                         transform: "translateZ(75px)",
                         transformStyle: "preserve-3d",
                     }}
-                    className="bg-white/5 backdrop-blur-md rounded-[2.5rem] overflow-hidden group border border-white/5 hover:border-brand-gold/40 transition-all duration-500 h-full shadow-2xl"
+                    className="bg-zinc-900/50 backdrop-blur-md rounded-xl overflow-hidden group border border-white/5 hover:border-brand-gold/40 transition-all duration-500 h-full shadow-lg"
                 >
-                    <div className="relative aspect-[4/5] overflow-hidden">
-                        {/* Image Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500 z-10" />
+                    <div className="relative aspect-square overflow-hidden bg-white">
+                        {/* Image Gradient Overlay - Removed to show true colors */}
 
                         <div
                             style={{
@@ -78,7 +77,7 @@ const TiltCard = ({ product, handleAddToCart }: { product: Product; handleAddToC
                             <img
                                 src={product.imageUrl || "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800&auto=format&fit=crop"}
                                 alt={product.name}
-                                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-1000 ease-out grayscale-[20%] group-hover:grayscale-0"
+                                className="object-contain w-full h-full p-2 group-hover:scale-105 transition-transform duration-500 ease-out"
                             />
                         </div>
 
@@ -106,14 +105,14 @@ const TiltCard = ({ product, handleAddToCart }: { product: Product; handleAddToC
                         style={{
                             transform: "translateZ(60px)",
                         }}
-                        className="p-8"
+                        className="p-5"
                     >
                         <div className="mb-2">
                             <p className="text-xs text-brand-gold/80 mb-2 font-bold uppercase tracking-widest">{product.category}</p>
                             <h3 className="text-2xl font-bold font-serif text-white group-hover:text-brand-gold transition-colors duration-300">{product.name}</h3>
                         </div>
                         <div className="flex items-end justify-between mt-4">
-                            <p className="text-3xl font-bold text-white tracking-tight">${product.price}</p>
+                            <p className="text-3xl font-bold text-white tracking-tight">Rs. {product.price}</p>
                         </div>
                     </div>
                 </div>
@@ -183,7 +182,7 @@ export default function Shop({ category = 'All' }: { category?: string }) {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-16"
+                    className="text-center mb-10"
                 >
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
@@ -196,21 +195,21 @@ export default function Shop({ category = 'All' }: { category?: string }) {
                         </span>
                     </motion.div>
 
-                    <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-brand-gold/80 to-brand-amber drop-shadow-sm leading-tight">
+                    <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-brand-gold/80 to-brand-amber drop-shadow-sm leading-tight">
                         Discover Your Look
                     </h1>
-                    <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed font-light">
+                    <p className="text-gray-400 text-base max-w-2xl mx-auto leading-relaxed font-light">
                         Meticulously crafted eyewear that blends timeless elegance with modern comfort.
                     </p>
                 </motion.div>
 
                 {/* Filters */}
-                <div className="flex justify-center flex-wrap gap-4 mb-16">
+                <div className="flex justify-center flex-wrap gap-3 mb-12">
                     {['All', 'Frames', 'Sunglasses', 'Lenses'].map((item) => (
                         <button
                             key={item}
                             onClick={() => setFilter(item)}
-                            className={`px-8 py-3 rounded-full text-sm font-bold tracking-wide transition-all duration-300 transform hover:scale-105 ${filter === item
+                            className={`px-6 py-2 rounded-full text-sm font-bold tracking-wide transition-all duration-300 transform hover:scale-105 ${filter === item
                                 ? 'bg-gradient-to-r from-brand-gold to-brand-amber text-black shadow-[0_0_25px_rgba(255,193,7,0.3)]'
                                 : 'bg-white/5 backdrop-blur-md text-gray-400 hover:bg-white/10 border border-white/5 hover:border-brand-gold/30 hover:text-white'
                                 }`}
@@ -224,7 +223,7 @@ export default function Shop({ category = 'All' }: { category?: string }) {
                 {loading ? (
                     <div className="text-center text-white">Loading products...</div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 perspective-1000">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 perspective-1000">
                         {products.map((product) => (
                             <TiltCard key={product.id} product={product} handleAddToCart={handleAddToCart} />
                         ))}

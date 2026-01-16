@@ -11,7 +11,7 @@ exports.createAppointment = async (req, res) => {
                 name,
                 phone,
                 address,
-                date: new Date(date + 'T' + time.split(' ')[0] + ':00'),
+                date: new Date(date + 'T' + (time ? time.split(' ')[0] : '10:00') + ':00'),
                 status: 'PENDING',
                 items: items || []
             }

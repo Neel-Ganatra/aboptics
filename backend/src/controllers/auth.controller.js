@@ -8,7 +8,7 @@ const emailService = require('../utils/email.service');
 
 exports.register = async (req, res) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password, name, phoneNumber } = req.body;
 
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
@@ -24,6 +24,7 @@ exports.register = async (req, res) => {
                 email,
                 password: hashedPassword,
                 name,
+                phoneNumber,
                 otp,
                 otpExpiry,
                 isVerified: false
@@ -64,7 +65,7 @@ exports.verifyOtp = async (req, res) => {
         });
 
         const token = jwt.sign({ userId: updatedUser.id, role: updatedUser.role }, JWT_SECRET, { expiresIn: '7d' });
-        res.json({ token, user: { id: updatedUser.id, email: updatedUser.email, name: updatedUser.name, role: updatedUser.role } });
+        res.json({ token, user: { id: updatedUser.id, email: updatedUser.email, name: updatedUser.name, role: updatedUser.role, phoneNumber: updatedUser.phoneNumber } });
 
     } catch (error) {
         console.error(error);
@@ -92,7 +93,7 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
 
-        res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+        res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role, phoneNumber: user.phoneNumber } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error on login' });

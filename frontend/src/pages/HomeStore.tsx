@@ -2,28 +2,74 @@ import { motion } from 'framer-motion';
 import { Calendar, CheckCircle, ArrowRight, Trash2 } from 'lucide-react';
 import { useHomeTrial } from '../context/HomeTrialContext';
 import { appointmentAPI } from '../api';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
 
 export default function HomeStore() {
     const { trialItems, removeFromTrial, clearTrial } = useHomeTrial();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         address: '',
-        date: '',
-        time: '10:00'
+        date: ''
     });
+
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                name: user.name || '',
+                phone: user.phoneNumber || ''
+            }));
+        }
+    }, [user]);
 
     const handleChange = (e: any) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+
+    // Helper to format date as YYYY-MM-DD
+    const formatDate = (date: Date) => {
+        return date.toISOString().split('T')[0];
+    };
+
+    const today = new Date();
+    const minDate = formatDate(today);
+
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 14);
+    const maxDate = formatDate(nextWeek);
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         setLoading(true);
+        // Validation
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(formData.phone)) {
+            alert("Please enter a valid 10-digit phone number.");
+            setLoading(false);
+            return;
+        }
+
+        const selectedDate = new Date(formData.date);
+        const todayDate = new Date();
+        todayDate.setHours(0, 0, 0, 0);
+
+        const maxAllowedDate = new Date(todayDate);
+        maxAllowedDate.setDate(todayDate.getDate() + 14);
+
+        if (selectedDate < todayDate || selectedDate > maxAllowedDate) {
+            alert("Please select a date within the next 14 days.");
+            setLoading(false);
+            return;
+        }
+
+
         try {
             await appointmentAPI.create({
                 ...formData,
@@ -132,17 +178,20 @@ export default function HomeStore() {
                             <textarea required name="address" onChange={handleChange} value={formData.address} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors h-24 resize-none" placeholder="Full address with landmark..." />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-5">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Date</label>
-                                <div className="relative">
-                                    <input required name="date" onChange={handleChange} value={formData.date} type="date" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors text-white [color-scheme:dark]" />
-                                    <Calendar className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300">Time</label>
-                                <input required name="time" onChange={handleChange} value={formData.time} type="time" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors text-white [color-scheme:dark]" />
+                        <div className="space-y-2 col-span-2">
+                            <label className="text-sm font-medium text-gray-300">Date (Next 14 Days)</label>
+                            <div className="relative">
+                                <input
+                                    required
+                                    name="date"
+                                    onChange={handleChange}
+                                    value={formData.date}
+                                    type="date"
+                                    min={minDate}
+                                    max={maxDate}
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-brand-gold focus:outline-none transition-colors text-white [color-scheme:dark]"
+                                />
+                                <Calendar className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
                             </div>
                         </div>
 

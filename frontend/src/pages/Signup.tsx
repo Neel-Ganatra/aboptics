@@ -13,7 +13,7 @@ const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 export default function Signup() {
     const [step, setStep] = useState(1); // 1 = Details, 2 = OTP
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', phoneNumber: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [otp, setOtp] = useState('');
     const { login } = useAuth();
@@ -163,6 +163,20 @@ export default function Signup() {
                                 disabled={isLoading}
                                 className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 focus:border-brand-gold/50 focus:ring-1 focus:ring-brand-gold/50 focus:outline-none transition-all placeholder:text-gray-600 disabled:opacity-50"
                                 placeholder="John Doe"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300 ml-1">Phone Number</label>
+                            <input
+                                name="phoneNumber"
+                                type="tel"
+                                required
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                disabled={isLoading}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 focus:border-brand-gold/50 focus:ring-1 focus:ring-brand-gold/50 focus:outline-none transition-all placeholder:text-gray-600 disabled:opacity-50"
+                                placeholder="+91 9876543210"
                             />
                         </div>
 

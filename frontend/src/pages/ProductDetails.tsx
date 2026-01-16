@@ -219,8 +219,8 @@ export default function ProductDetails() {
                         </p>
 
                         <div className="flex items-baseline gap-4">
-                            <span className="text-5xl font-bold text-white font-serif">${product.price}</span>
-                            <span className="text-lg text-gray-500 line-through decoration-brand-gold/50">${Math.round(product.price * 1.2)}</span>
+                            <span className="text-5xl font-bold text-white font-serif">Rs. {product.price}</span>
+                            <span className="text-lg text-gray-500 line-through decoration-brand-gold/50">Rs. {Math.round(product.price * 1.2)}</span>
                             <span className="text-sm text-green-400 font-bold bg-green-400/10 px-3 py-1 rounded-full">In Stock</span>
                         </div>
 

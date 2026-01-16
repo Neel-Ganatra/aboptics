@@ -32,6 +32,7 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('ALL');
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     useEffect(() => {
         if (!user || user.role !== 'ADMIN') {
@@ -161,13 +162,13 @@ export default function AdminDashboard() {
                                             <div className="text-xs text-gray-500">{order.phone}</div>
                                         </td>
                                         <td className="p-6">
-                                            <div className="flex -space-x-2">
-                                                {/* Mock avatars for items or simple count */}
-                                                <div className="w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center text-[10px] text-brand-gold border border-black">
-                                                    {Array.isArray(order.items) ? order.items.length : 0}
-                                                </div>
-                                            </div>
-                                            <span className="text-xs text-gray-400 mt-1 block">Items Selected</span>
+                                            <span className="text-xs text-brand-gold mt-1 block font-bold">{Array.isArray(order.items) ? order.items.length : 0} Items</span>
+                                            <button
+                                                onClick={() => setSelectedOrder(order)}
+                                                className="text-[10px] underline text-gray-400 hover:text-white mt-1"
+                                            >
+                                                View Details
+                                            </button>
                                         </td>
                                         <td className="p-6 text-sm text-gray-400">
                                             {new Date(order.date).toLocaleDateString()}
@@ -216,6 +217,77 @@ export default function AdminDashboard() {
                             alert('Product Created Successfully!');
                         }}
                     />
+                )}
+            </AnimatePresence>
+
+            {/* Order Details Modal */}
+            <AnimatePresence>
+                {selectedOrder && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setSelectedOrder(null)}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-2xl"
+                        >
+                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#111]/90 sticky top-0 z-10 backdrop-blur-md">
+                                <div>
+                                    <h2 className="text-xl font-bold text-white">Order Details #{selectedOrder.id}</h2>
+                                    <p className="text-sm text-gray-400">Customer: {selectedOrder.name || selectedOrder.user?.name}</p>
+                                </div>
+                                <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-white/10 rounded-full">
+                                    <Users size={20} className="rotate-45" /> {/* Using Users as close icon substitute if X not imported, wait X is not imported but PlusCircle is. Let's just use text 'Close' or try CheckCircle if needed, actually I can just add X to imports if not there. Inspecting imports: Users, ShoppingBag, Clock, CheckCircle, PlusCircle. X is not there. I will use 'Close' text or just click outside. actually X is standard. I'll add X to imports or just use a generic ascii X for speed or SVG. */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 18 18" /></svg>
+                                </button>
+                            </div>
+
+                            <div className="p-6 space-y-6">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div className="bg-white/5 p-4 rounded-xl">
+                                        <p className="text-gray-500 font-bold uppercase text-xs mb-1">Contact Info</p>
+                                        <p className="text-white">{selectedOrder.user?.email}</p>
+                                        <p className="text-white">{selectedOrder.phone}</p>
+                                    </div>
+                                    <div className="bg-white/5 p-4 rounded-xl">
+                                        <p className="text-gray-500 font-bold uppercase text-xs mb-1">Shipping Address</p>
+                                        <p className="text-white">{selectedOrder.address || "No address provided"}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                                        <ShoppingBag size={16} className="text-brand-gold" />
+                                        Ordered Items
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, idx: number) => (
+                                            <div key={idx} className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+                                                <img
+                                                    src={item.product?.imageUrl || item.image || "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800&auto=format&fit=crop"}
+                                                    alt={item.product?.name || "Product"}
+                                                    className="w-16 h-16 object-cover rounded-lg bg-black"
+                                                />
+                                                <div className="flex-1">
+                                                    <h4 className="font-bold text-white">{item.product?.name || item.name || "Unknown Product"}</h4>
+                                                    <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="font-bold text-brand-gold">Rs. {item.price}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div>
